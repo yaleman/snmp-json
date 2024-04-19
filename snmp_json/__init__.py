@@ -1,3 +1,4 @@
+from functools import lru_cache
 import json
 from typing import Any, Callable, Dict, Tuple
 
@@ -21,6 +22,15 @@ def octets_to_bytes(value: str) -> str | int:
         return value
 
 
+@lru_cache(typed=True, maxsize=128)
+def get_oid(oi: Tuple[str,] | Tuple[str, str], ifindex: int) -> ObjectIdentity:
+    """caching the lookup things"""
+    return ObjectIdentity(*oi, ifindex).addAsn1MibSource(
+        "file:///usr/share/snmp",
+        # "https://mibs.pysnmp.com/asn1/@mib@",
+    )
+
+
 def update_data(
     config: Config,
     oi: Tuple[str,] | Tuple[str, str],
@@ -38,12 +48,7 @@ def update_data(
                     config.port,
                     # can pull from https://pysnmp.github.io/mibs/asn1/@mib@
                     # ref https://docs.lextudio.com/pysnmp/faq/pass-custom-mib-to-manager
-                    ObjectType(
-                        ObjectIdentity(*oi, ifindex).addAsn1MibSource(
-                            "file:///usr/share/snmp",
-                            # "https://mibs.pysnmp.com/asn1/@mib@",
-                        )
-                    ),
+                    ObjectType(get_oid(*oi, ifindex)),
                 )
             except SmiError:
                 continue
