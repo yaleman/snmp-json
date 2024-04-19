@@ -43,7 +43,7 @@ def cli() -> None:
         start_time = datetime.now().timestamp()
         do_action(config)
 
-        if config.interval_seconds is None:
+        if config.interval is None:
             break
         total_time = datetime.now().timestamp() - start_time
 
