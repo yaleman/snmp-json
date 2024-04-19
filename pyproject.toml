@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "snmp-json"
-version = "0.1.0"
-description = ""
+version = "0.2.0"
+description = "SNMP poller to JSON output"
 authors = ["James Hodgkinson <james@terminaloutcomes.com>"]
 license = "MIT"
 readme = "README.md"

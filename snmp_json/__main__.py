@@ -1,18 +1,26 @@
+from datetime import datetime
 import json
 import sys
-from typing import Any, Dict, Optional
+import time
 import click
 from loguru import logger
 
-from snmp_json import octets_to_bytes, update_data
+from snmp_json import do_action
 from snmp_json.config import Config
 
 
 @click.command()
-@click.option("--max-interfaces", "-M", default="32", help="Max number of interfaces")
-def cli(max_interfaces: Optional[str]) -> None:
+def cli() -> None:
 
     config = Config()
+    if config.debug:
+        logger.remove()
+        logger.add(sink=sys.stderr, level="DEBUG")
+        logger.debug("Debug logging enabled")
+        logger.debug("Config: {}", json.dumps(config.model_dump(mode="json")))
+    else:
+        logger.remove()
+        logger.add(sink=sys.stderr, level="INFO")
     if config.hostname is None:
         logger.error("No hostname specified!")
         sys.exit(1)
@@ -20,33 +28,33 @@ def cli(max_interfaces: Optional[str]) -> None:
         logger.error("No community specified!")
         sys.exit(1)
 
-    if max_interfaces is not None:
-        config.max_interfaces = int(max_interfaces)
+    try:
+        if config.interval is not None:
+            interval_seconds = float(config.interval)
+            logger.debug("Interval set to {} seconds", interval_seconds)
+    except ValueError:
+        logger.error(
+            "Interval value '{}' couldn't be converted to a floating number!",
+            config.interval,
+        )
+        sys.exit(1)
 
-    data: Dict[str, Any] = {}
+    while True:
+        start_time = datetime.now().timestamp()
+        do_action(config)
 
-    update_data(config, ("IF-MIB", "ifDescr"), data)
-    update_data(config, ("IF-MIB", "ifSpeed"), data, value_alter=int)
-    update_data(config, ("IF-MIB", "ifAdminStatus"), data)
-    update_data(config, ("IF-MIB", "ifOperStatus"), data)
-    update_data(
-        config,
-        ("IF-MIB", "ifInOctets"),
-        data,
-        key_alter=lambda x: x.lstrip("if").replace("Octets", "Bytes"),
-        value_alter=octets_to_bytes,
-    )
-    update_data(
-        config,
-        ("IF-MIB", "ifOutOctets"),
-        data,
-        key_alter=lambda x: x.lstrip("if").replace("Octets", "Bytes"),
-        value_alter=octets_to_bytes,
-    )
-    update_data(config, ("IF-MIB", "ifAlias"), data)
+        if config.interval is None:
+            break
+        total_time = datetime.now().timestamp() - start_time
 
-    for key, value in data.items():
-        print(json.dumps(value))
+        if total_time > interval_seconds:
+            logger.warning(
+                "Execution time exceeded interval time! {} > {}",
+                total_time,
+                interval_seconds,
+            )
+        else:
+            time.sleep(interval_seconds - total_time)
 
 
 if __name__ == "__main__":
