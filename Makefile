@@ -12,4 +12,25 @@ container: ## Build the container
 container:
 	docker build -t $(IMAGE_NAME) .
 
+.PHONY: mypy
+mypy: ## Run mypy
+mypy:
+	poetry run mypy --strict snmp_json tests
+
+.PHONY: ruff
+ruff: ## Run ruff
+ruff:
+	poetry run ruff check snmp_json tests
+
+
+.PHONY: pytest
+pytest: ## Run pytest
+pytest:
+	poetry run pytest -s
+
+
+.PHONY: checks
+checks: ## Run all the tests
+checks: pytest ruff mypy
+
 

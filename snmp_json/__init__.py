@@ -1,3 +1,4 @@
+import json
 from typing import Any, Callable, Dict, Tuple
 
 from loguru import logger
@@ -67,3 +68,33 @@ def update_data(
                             "ifIndex": int(key_index),
                         }
                     data[key_index][key_alter(key_value)] = value_alter(value)
+
+
+def do_action(config: Config) -> Dict[str, Any]:
+    """does the data collection phase"""
+    data: Dict[str, Any] = {}
+
+    logger.debug("Running collection...")
+    update_data(config, ("IF-MIB", "ifDescr"), data)
+    update_data(config, ("IF-MIB", "ifSpeed"), data, value_alter=int)
+    update_data(config, ("IF-MIB", "ifAdminStatus"), data)
+    update_data(config, ("IF-MIB", "ifOperStatus"), data)
+    update_data(
+        config,
+        ("IF-MIB", "ifInOctets"),
+        data,
+        key_alter=lambda x: x.lstrip("if").replace("Octets", "Bytes"),
+        value_alter=octets_to_bytes,
+    )
+    update_data(
+        config,
+        ("IF-MIB", "ifOutOctets"),
+        data,
+        key_alter=lambda x: x.lstrip("if").replace("Octets", "Bytes"),
+        value_alter=octets_to_bytes,
+    )
+    update_data(config, ("IF-MIB", "ifAlias"), data)
+
+    for key, value in data.items():
+        print(json.dumps(value))
+    return data
