@@ -2,7 +2,7 @@
 
 Currently designed to pull interface stats from my router, can be configured to add a bunch of other options.
 
-Only uses SNMPv1 because I'm lazy and it's hard enough to make this junk work 😃
+Only uses SNMPv2c because I'm lazy and it's hard enough to make this junk work 😃
 
 ## Config
 

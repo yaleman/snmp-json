@@ -32,5 +32,5 @@ pytest:
 .PHONY: checks
 checks: ## Run all the tests
 checks: pytest ruff mypy
-
+	codespell
 
