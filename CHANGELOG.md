@@ -4,6 +4,7 @@
 
 * Trying to cache MIB processing per-interval-loop
 * More bulk ops
+* Adding timeouts and retries as options
 
 ## 0.2.0
 
