@@ -1,10 +1,11 @@
+import asyncio
 import json
 from typing import Any, Callable, Dict, List, Tuple
 
 from loguru import logger
 from snmp_json.config import Config
 
-from pysnmp.hlapi.asyncio.sync import bulkWalkCmd, UdpTransportTarget, ContextData  # type: ignore
+from pysnmp.hlapi.asyncio import bulkWalkCmd, UdpTransportTarget, ContextData  # type: ignore
 from pysnmp.entity.engine import SnmpEngine  # type: ignore
 from pysnmp.hlapi.auth import CommunityData  # type: ignore
 from pysnmp.smi.rfc1902 import ObjectType  # type: ignore
@@ -23,7 +24,7 @@ def octets_to_bytes(value: str) -> str | int:
         return value
 
 
-def update_data_bulk(
+async def update_data_bulk(
     config: Config,
     oi: List[Tuple[str,] | Tuple[str, str]],
     data: Dict[str, Any],
@@ -35,7 +36,7 @@ def update_data_bulk(
 
     try:
 
-        for errorIndication, errorStatus, errorIndex, varBinds in bulkWalkCmd(
+        async for errorIndication, errorStatus, errorIndex, varBinds in bulkWalkCmd(
             engine,
             CommunityData(config.community),  # defaults to snmpv2c
             UdpTransportTarget(
@@ -78,10 +79,14 @@ def do_action(config: Config, oi: List[ObjectType]) -> Dict[str, Any]:
     data: Dict[str, Any] = {}
 
     logger.debug("Running collection...")
-    update_data_bulk(
-        config=config,
-        oi=oi,
-        data=data,
+    loop = asyncio.get_event_loop()
+
+    loop.run_until_complete(
+        update_data_bulk(
+            config=config,
+            oi=oi,
+            data=data,
+        )
     )
 
     # clean up some things
