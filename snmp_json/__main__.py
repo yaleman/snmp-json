@@ -49,12 +49,12 @@ def cli() -> None:
         )
         for oid in [
             ("IF-MIB", "ifAdminStatus"),
-            ("IF-MIB", "ifAlias"),
-            ("IF-MIB", "ifDescr"),
-            ("IF-MIB", "ifInOctets"),
-            ("IF-MIB", "ifOutOctets"),
-            ("IF-MIB", "ifOperStatus"),
-            ("IF-MIB", "ifSpeed"),
+            # ("IF-MIB", "ifAlias"),
+            # ("IF-MIB", "ifDescr"),
+            # ("IF-MIB", "ifInOctets"),
+            # ("IF-MIB", "ifOutOctets"),
+            # ("IF-MIB", "ifOperStatus"),
+            # ("IF-MIB", "ifSpeed"),
         ]
     ]
     while True:
