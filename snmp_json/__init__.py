@@ -40,8 +40,8 @@ def update_data_bulk(
             CommunityData(config.community),  # defaults to snmpv2c
             UdpTransportTarget(
                 transportAddr=(config.hostname, config.port),
-                timeout=config.snmp_timeout,
-                retries=0,
+                timeout=config.timeout,
+                retries=config.retries,
             ),
             ContextData(),
             0,
