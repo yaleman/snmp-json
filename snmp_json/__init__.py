@@ -1,4 +1,3 @@
-from functools import lru_cache
 import json
 from typing import Any, Callable, Dict, List, Tuple
 
@@ -8,7 +7,7 @@ from snmp_json.config import Config
 from pysnmp.hlapi.asyncio.sync import bulkWalkCmd, UdpTransportTarget, ContextData  # type: ignore
 from pysnmp.entity.engine import SnmpEngine  # type: ignore
 from pysnmp.hlapi.auth import CommunityData  # type: ignore
-from pysnmp.smi.rfc1902 import ObjectIdentity, ObjectType  # type: ignore
+from pysnmp.smi.rfc1902 import ObjectType  # type: ignore
 from pysnmp.smi.error import SmiError  # type: ignore
 
 
@@ -24,18 +23,6 @@ def octets_to_bytes(value: str) -> str | int:
         return value
 
 
-@lru_cache(typed=True, maxsize=2048)
-def get_oid(oi: Tuple[str,] | Tuple[str, str], ifindex: int) -> ObjectType:
-    """caching the lookup things"""
-    logger.debug("Returning OID for {}", oi)
-    return ObjectType(
-        ObjectIdentity(*oi, ifindex).addAsn1MibSource(
-            "file:///usr/share/snmp",
-            # "https://mibs.pysnmp.com/asn1/@mib@",
-        )
-    )
-
-
 def update_data_bulk(
     config: Config,
     oi: List[Tuple[str,] | Tuple[str, str]],
@@ -44,18 +31,8 @@ def update_data_bulk(
     value_alter: Callable[[str], str | int] = lambda x: x,
 ) -> None:
 
-    oids = []
     engine = SnmpEngine()
 
-    for oid in oi:
-        oids.append(
-            ObjectType(
-                ObjectIdentity(*oid).addAsn1MibSource(
-                    "file:///usr/share/snmp",
-                    # "https://mibs.pysnmp.com/asn1/@mib@",
-                )
-            )
-        )
     try:
 
         for errorIndication, errorStatus, errorIndex, varBinds in bulkWalkCmd(
@@ -67,7 +44,7 @@ def update_data_bulk(
             ContextData(),
             0,
             config.max_interfaces,
-            *oids,
+            *oi,
             lexicographicMode=True,
             maxRows=config.max_interfaces,
         ):
@@ -94,22 +71,14 @@ def update_data_bulk(
         return
 
 
-def do_action(config: Config) -> Dict[str, Any]:
+def do_action(config: Config, oi: List[ObjectType]) -> Dict[str, Any]:
     """does the data collection phase"""
     data: Dict[str, Any] = {}
 
     logger.debug("Running collection...")
     update_data_bulk(
         config=config,
-        oi=[
-            ("IF-MIB", "ifAdminStatus"),
-            ("IF-MIB", "ifAlias"),
-            ("IF-MIB", "ifDescr"),
-            ("IF-MIB", "ifInOctets"),
-            ("IF-MIB", "ifOutOctets"),
-            ("IF-MIB", "ifOperStatus"),
-            ("IF-MIB", "ifSpeed"),
-        ],
+        oi=oi,
         data=data,
     )
 

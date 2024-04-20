@@ -7,6 +7,7 @@ from loguru import logger
 
 from snmp_json import do_action
 from snmp_json.config import Config
+from pysnmp.smi.rfc1902 import ObjectIdentity, ObjectType  # type: ignore
 
 
 @click.command()
@@ -39,9 +40,27 @@ def cli() -> None:
         )
         sys.exit(1)
 
+    oi = [
+        ObjectType(
+            ObjectIdentity(*oid).addAsn1MibSource(
+                "file:///usr/share/snmp",
+                # "https://mibs.pysnmp.com/asn1/@mib@",
+            )
+        )
+        for oid in [
+            ("IF-MIB", "ifAdminStatus"),
+            ("IF-MIB", "ifAlias"),
+            ("IF-MIB", "ifDescr"),
+            ("IF-MIB", "ifInOctets"),
+            ("IF-MIB", "ifOutOctets"),
+            ("IF-MIB", "ifOperStatus"),
+            ("IF-MIB", "ifSpeed"),
+        ]
+    ]
     while True:
         start_time = datetime.now().timestamp()
-        do_action(config)
+
+        do_action(config, oi)
 
         if config.interval is None:
             break
