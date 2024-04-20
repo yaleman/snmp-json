@@ -16,3 +16,4 @@ Env vars:
 | `SNMP_JSON_MAX_INTERFACES` | Maximum number of interfaces to attempt | `32` |
 | `SNMP_JSON_INTERVAL` | If set, the interval between starting checks | Unset |
 | `SNMP_JSON_DEBUG` | Enable additional debug logging | `False` |
+| `SNMP_TIMEOUT` | Number of seconds to wait for an SNMP command | `5` |
