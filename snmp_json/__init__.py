@@ -1,11 +1,13 @@
 from functools import lru_cache
 import json
-from typing import Any, Callable, Dict, Tuple
+from typing import Any, Callable, Dict, List, Tuple
 
 from loguru import logger
 from snmp_json.config import Config
 
-from pysnmp.hlapi.asyncio.sync.slim import Slim  # type: ignore
+from pysnmp.hlapi.asyncio.sync import bulkWalkCmd, UdpTransportTarget, ContextData  # type: ignore
+from pysnmp.entity.engine import SnmpEngine  # type: ignore
+from pysnmp.hlapi.auth import CommunityData  # type: ignore
 from pysnmp.smi.rfc1902 import ObjectIdentity, ObjectType  # type: ignore
 from pysnmp.smi.error import SmiError  # type: ignore
 
@@ -22,43 +24,57 @@ def octets_to_bytes(value: str) -> str | int:
         return value
 
 
-@lru_cache(typed=True, maxsize=128)
-def get_oid(oi: Tuple[str,] | Tuple[str, str], ifindex: int) -> ObjectIdentity:
+@lru_cache(typed=True, maxsize=2048)
+def get_oid(oi: Tuple[str,] | Tuple[str, str], ifindex: int) -> ObjectType:
     """caching the lookup things"""
-    return ObjectIdentity(*oi, ifindex).addAsn1MibSource(
-        "file:///usr/share/snmp",
-        # "https://mibs.pysnmp.com/asn1/@mib@",
+    logger.debug("Returning OID for {}", oi)
+    return ObjectType(
+        ObjectIdentity(*oi, ifindex).addAsn1MibSource(
+            "file:///usr/share/snmp",
+            # "https://mibs.pysnmp.com/asn1/@mib@",
+        )
     )
 
 
-def update_data(
+def update_data_bulk(
     config: Config,
-    oi: Tuple[str,] | Tuple[str, str],
+    oi: List[Tuple[str,] | Tuple[str, str]],
     data: Dict[str, Any],
     key_alter: Callable[[str], str] = rename_key,
     value_alter: Callable[[str], str | int] = lambda x: x,
 ) -> None:
 
-    with Slim(2) as slim:
-        for ifindex in range(0, config.max_interfaces):
-            try:
-                errorIndication, errorStatus, errorIndex, varBinds = slim.get(
-                    config.community,
-                    config.hostname,
-                    config.port,
-                    # can pull from https://pysnmp.github.io/mibs/asn1/@mib@
-                    # ref https://docs.lextudio.com/pysnmp/faq/pass-custom-mib-to-manager
-                    ObjectType(get_oid(*oi, ifindex)),
-                )
-            except SmiError:
-                continue
+    oids = []
+    engine = SnmpEngine()
 
+    for oid in oi:
+        oids.append(
+            ObjectType(
+                ObjectIdentity(*oid).addAsn1MibSource(
+                    "file:///usr/share/snmp",
+                    # "https://mibs.pysnmp.com/asn1/@mib@",
+                )
+            )
+        )
+    try:
+
+        for errorIndication, errorStatus, errorIndex, varBinds in bulkWalkCmd(
+            engine,
+            CommunityData(config.community),  # defaults to snmpv2c
+            UdpTransportTarget(
+                transportAddr=(config.hostname, config.port), timeout=2, retries=0
+            ),
+            ContextData(),
+            0,
+            config.max_interfaces,
+            *oids,
+            lexicographicMode=True,
+            maxRows=config.max_interfaces,
+        ):
             if errorIndication:
-                logger.error(errorIndication)
-                continue
+                logger.error("errorIndication: {}", errorIndication)
             elif errorStatus:
-                logger.error(errorStatus)
-                continue
+                logger.error("errorStatus: {}", errorStatus)
             else:
                 for varBind in varBinds:
                     key, value = varBind.prettyPrint().split(" = ")
@@ -73,6 +89,9 @@ def update_data(
                             "ifIndex": int(key_index),
                         }
                     data[key_index][key_alter(key_value)] = value_alter(value)
+    except SmiError as error:
+        logger.error("SMIERROR: {}", error)
+        return
 
 
 def do_action(config: Config) -> Dict[str, Any]:
@@ -80,26 +99,29 @@ def do_action(config: Config) -> Dict[str, Any]:
     data: Dict[str, Any] = {}
 
     logger.debug("Running collection...")
-    update_data(config, ("IF-MIB", "ifDescr"), data)
-    update_data(config, ("IF-MIB", "ifSpeed"), data, value_alter=int)
-    update_data(config, ("IF-MIB", "ifAdminStatus"), data)
-    update_data(config, ("IF-MIB", "ifOperStatus"), data)
-    update_data(
-        config,
-        ("IF-MIB", "ifInOctets"),
-        data,
-        key_alter=lambda x: x.lstrip("if").replace("Octets", "Bytes"),
-        value_alter=octets_to_bytes,
+    update_data_bulk(
+        config=config,
+        oi=[
+            ("IF-MIB", "ifAdminStatus"),
+            ("IF-MIB", "ifAlias"),
+            ("IF-MIB", "ifDescr"),
+            ("IF-MIB", "ifInOctets"),
+            ("IF-MIB", "ifOutOctets"),
+            ("IF-MIB", "ifOperStatus"),
+            ("IF-MIB", "ifSpeed"),
+        ],
+        data=data,
     )
-    update_data(
-        config,
-        ("IF-MIB", "ifOutOctets"),
-        data,
-        key_alter=lambda x: x.lstrip("if").replace("Octets", "Bytes"),
-        value_alter=octets_to_bytes,
-    )
-    update_data(config, ("IF-MIB", "ifAlias"), data)
 
-    for key, value in data.items():
+    # clean up some things
+    for value in data.values():
+        if "OperStatus" not in value:
+            continue
+        if "InOctets" in value:
+            value["InBytes"] = octets_to_bytes(value["InOctets"])
+            del value["InOctets"]
+        if "OutOctets" in value:
+            value["OutBytes"] = octets_to_bytes(value["OutOctets"])
+            del value["OutOctets"]
         print(json.dumps(value))
     return data

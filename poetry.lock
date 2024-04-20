@@ -653,6 +653,21 @@ toml = ["tomli (>=2.0.1)"]
 yaml = ["pyyaml (>=6.0.1)"]
 
 [[package]]
+name = "pyflame"
+version = "0.3.2"
+description = "A Flamegraph generator for Python"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "pyflame-0.3.2-py3-none-any.whl", hash = "sha256:b67abf9a9f9c0051b5468a3ff5f0e26376609f447c99cb0674e3eba8d5ce0d22"},
+    {file = "pyflame-0.3.2.tar.gz", hash = "sha256:8f5e5146781bddef387b33170b27cfc5be907fae0179516db564a723f30e5121"},
+]
+
+[package.extras]
+django = ["django (>=3.2)", "django-debug-toolbar"]
+jupyter = ["ipython", "traitlets (>=5)"]
+
+[[package]]
 name = "pysmi-lextudio"
 version = "1.4.3"
 description = "A pure-Python implementation of SNMP/SMI MIB parsing and conversion library."
@@ -824,4 +839,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "b62530488dd4b74ce0a6685800016797bb24fc4da8e5086be623884511a486f1"
+content-hash = "1e8af9ee43e4b09eadbd29877336808c9e3486c2f9c7b1b6e21a98795f3334ce"
