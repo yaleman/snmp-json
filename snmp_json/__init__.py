@@ -81,13 +81,17 @@ def do_action(config: Config, oi: List[ObjectType]) -> Dict[str, Any]:
     logger.debug("Running collection...")
     loop = asyncio.get_event_loop()
 
-    loop.run_until_complete(
-        update_data_bulk(
-            config=config,
-            oi=oi,
-            data=data,
+    try:
+        loop.run_until_complete(
+            update_data_bulk(
+                config=config,
+                oi=oi,
+                data=data,
+            )
         )
-    )
+    except Exception as error:
+        logger.error("Error: {}", error)
+        return {}
 
     # clean up some things
     for value in data.values():
