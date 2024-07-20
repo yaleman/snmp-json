@@ -7,7 +7,7 @@ from loguru import logger
 
 from snmp_json import do_action
 from snmp_json.config import Config
-from pysnmp.smi.rfc1902 import ObjectIdentity, ObjectType  # type: ignore
+from pysnmp.smi.rfc1902 import ObjectIdentity, ObjectType  # type: ignore[import-untyped]
 
 
 @click.command()

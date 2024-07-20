@@ -5,11 +5,11 @@ from typing import Any, Callable, Dict, List, Tuple
 from loguru import logger
 from snmp_json.config import Config
 
-from pysnmp.hlapi.asyncio import bulkWalkCmd, UdpTransportTarget, ContextData  # type: ignore
-from pysnmp.entity.engine import SnmpEngine  # type: ignore
-from pysnmp.hlapi.auth import CommunityData  # type: ignore
-from pysnmp.smi.rfc1902 import ObjectType  # type: ignore
-from pysnmp.smi.error import SmiError  # type: ignore
+from pysnmp.hlapi.asyncio import bulkWalkCmd, UdpTransportTarget, ContextData  # type: ignore[import-untyped]
+from pysnmp.entity.engine import SnmpEngine  # type: ignore[import-untyped]
+from pysnmp.hlapi.asyncio.auth import CommunityData  # type: ignore[import-untyped]
+from pysnmp.smi.rfc1902 import ObjectType  # type: ignore[import-untyped]
+from pysnmp.smi.error import SmiError  # type: ignore[import-untyped]
 
 
 def rename_key(value: str) -> str:
