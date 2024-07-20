@@ -762,13 +762,13 @@ requests = ">=2.26.0,<3.0.0"
 
 [[package]]
 name = "pysnmp-lextudio"
-version = "6.2.0"
+version = "6.2.1"
 description = "A Python library for SNMP"
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "pysnmp_lextudio-6.2.0-py3-none-any.whl", hash = "sha256:71ca7a5c0cebadcbf46594bb7480c8a7d44dc2b8910ae74b0b570502589d378f"},
-    {file = "pysnmp_lextudio-6.2.0.tar.gz", hash = "sha256:f116586be5ff97fee4c7e01001dcd4f4aa4dd0024d3c8dd1c13ff613dbe88d3e"},
+    {file = "pysnmp_lextudio-6.2.1-py3-none-any.whl", hash = "sha256:69a8f8650e7f0cdf76e9cdee8d464787fa6e5df79f0d6f004fa8b935f0767a45"},
+    {file = "pysnmp_lextudio-6.2.1.tar.gz", hash = "sha256:e54e0ec93ff0b68e511502f9fa5f3704e07fc89e6f7bed489973bde8378b2557"},
 ]
 
 [package.dependencies]
@@ -936,4 +936,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "4898c08b99c387ed5d6906836b1ddb7567e0d09e56218484fb6e32535ce6e0ee"
+content-hash = "89e5f16183042c95a3c0458ac555cd5596faba30c91163a93ed6620b44c4f1dc"
