@@ -11,7 +11,7 @@ python = "^3.12"
 pysnmp-lextudio = "^6.2.1"
 pydantic = "^2.8.2"
 click = "^8.1.7"
-pydantic-settings = "^2.3.4"
+pydantic-settings = "^2.4.0"
 loguru = "^0.7.2"
 
 
