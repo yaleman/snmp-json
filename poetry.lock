@@ -759,17 +759,17 @@ requests = ">=2.26.0,<3.0.0"
 
 [[package]]
 name = "pysnmp-lextudio"
-version = "6.2.1"
-description = "A Python library for SNMP"
+version = "6.3.0"
+description = "A deprecated package. Please use 'pysnmp' instead."
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "pysnmp_lextudio-6.2.1-py3-none-any.whl", hash = "sha256:69a8f8650e7f0cdf76e9cdee8d464787fa6e5df79f0d6f004fa8b935f0767a45"},
-    {file = "pysnmp_lextudio-6.2.1.tar.gz", hash = "sha256:e54e0ec93ff0b68e511502f9fa5f3704e07fc89e6f7bed489973bde8378b2557"},
+    {file = "pysnmp_lextudio-6.3.0-py3-none-any.whl", hash = "sha256:f0675cfecfb5672a554dada0ec0de1a28d5d6a86fc28586ddb2f90565b078a76"},
+    {file = "pysnmp_lextudio-6.3.0.tar.gz", hash = "sha256:e946c9a80b48af4cfe3c8281eecb396be48cfa47c14107696aff6d10d7fa5be1"},
 ]
 
 [package.dependencies]
-pyasn1 = ">=0.4.8,<0.5.0 || >0.5.0"
+pyasn1 = ">=0.4.8,<0.5.0 || >0.5.0,<0.6.1"
 pysmi-lextudio = ">=1.3.0,<2.0.0"
 pysnmpcrypto = ">=0.0.4,<0.0.5"
 pytest-cov = ">=4.0.0,<5.0.0"
@@ -933,4 +933,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "558c4b2707f2169c8ecc724e8fde5cb0580f06957f65005d2daa474adadd55a3"
+content-hash = "969c0e537ae98546781e2a36902bd2fb8efb3156f4f5eab0f4a6c655bae76057"
