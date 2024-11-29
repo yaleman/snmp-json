@@ -9,7 +9,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 pysnmp-lextudio = "^6.3.0"
-pydantic = "^2.10.1"
+pydantic = "^2.10.2"
 click = "^8.1.7"
 pydantic-settings = "^2.6.1"
 loguru = "^0.7.2"
