@@ -16,7 +16,7 @@ loguru = "^0.7.3"
 
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.12.10"
+ruff = "^0.12.11"
 pytest = "^8.4.1"
 mypy = "^1.17.1"
 codespell = "^2.4.1"
