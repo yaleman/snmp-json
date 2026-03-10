@@ -19,7 +19,7 @@ loguru = "^0.7.3"
 ruff = "^0.15.5"
 pytest = "^9.0.2"
 mypy = "^1.19.1"
-codespell = "^2.4.1"
+codespell = "^2.4.2"
 pyflame = "^0.3.2"
 
 [build-system]
