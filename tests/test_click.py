@@ -1,8 +1,8 @@
 """ Test nothing. """
 
-from snmp_json.__main__ import cli
-
 from click.testing import CliRunner
+
+from snmp_json.__main__ import cli
 
 
 def test_help() -> None:

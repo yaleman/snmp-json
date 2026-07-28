@@ -1,15 +1,20 @@
 import asyncio
 import json
-from typing import Any, Callable, Dict, List, Tuple
+from collections.abc import Callable
+from typing import Any
 
 from loguru import logger
-from snmp_json.config import Config
-
-from pysnmp.hlapi.asyncio import bulkWalkCmd, UdpTransportTarget, ContextData  # type: ignore[import-untyped]
 from pysnmp.entity.engine import SnmpEngine  # type: ignore[import-untyped]
+from pysnmp.hlapi.asyncio import (  # type: ignore[import-untyped]
+    ContextData,
+    UdpTransportTarget,
+    bulkWalkCmd,
+)
 from pysnmp.hlapi.asyncio.auth import CommunityData  # type: ignore[import-untyped]
-from pysnmp.smi.rfc1902 import ObjectType  # type: ignore[import-untyped]
 from pysnmp.smi.error import SmiError  # type: ignore[import-untyped]
+from pysnmp.smi.rfc1902 import ObjectType  # type: ignore[import-untyped]
+
+from snmp_json.config import Config
 
 
 def rename_key(value: str) -> str:
@@ -26,8 +31,8 @@ def octets_to_bytes(value: str) -> str | int:
 
 async def update_data_bulk(
     config: Config,
-    oi: List[Tuple[str,] | Tuple[str, str]],
-    data: Dict[str, Any],
+    oi: list[tuple[str,] | tuple[str, str]],
+    data: dict[str, Any],
     key_alter: Callable[[str], str] = rename_key,
     value_alter: Callable[[str], str | int] = lambda x: x,
 ) -> None:
@@ -74,9 +79,9 @@ async def update_data_bulk(
         return
 
 
-def do_action(config: Config, oi: List[ObjectType]) -> Dict[str, Any]:
+def do_action(config: Config, oi: list[ObjectType]) -> dict[str, Any]:
     """does the data collection phase"""
-    data: Dict[str, Any] = {}
+    data: dict[str, Any] = {}
 
     logger.debug("Running collection...")
     loop = asyncio.get_event_loop()
@@ -89,7 +94,7 @@ def do_action(config: Config, oi: List[ObjectType]) -> Dict[str, Any]:
                 data=data,
             )
         )
-    except Exception as error:
+    except Exception as error:  # noqa: BLE001
         logger.error("Error: {}", error)
         return {}
 
