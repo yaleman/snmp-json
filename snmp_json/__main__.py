@@ -1,13 +1,16 @@
-from datetime import datetime
 import json
 import sys
 import time
+
 import click
 from loguru import logger
+from pysnmp.smi.rfc1902 import (  # type: ignore[import-untyped]
+    ObjectIdentity,
+    ObjectType,
+)
 
 from snmp_json import do_action
 from snmp_json.config import Config
-from pysnmp.smi.rfc1902 import ObjectIdentity, ObjectType  # type: ignore[import-untyped]
 
 
 @click.command()
@@ -58,13 +61,13 @@ def cli() -> None:
         ]
     ]
     while True:
-        start_time = datetime.now().timestamp()
+        start_time = time.time()
 
         do_action(config, oi)
 
         if config.interval is None:
             break
-        total_time = datetime.now().timestamp() - start_time
+        total_time = time.time() - start_time
 
         if total_time > interval_seconds:
             logger.warning(
